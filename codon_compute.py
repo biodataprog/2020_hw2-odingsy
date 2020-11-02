@@ -29,10 +29,58 @@ if not os.path.exists(file1):
 if not os.path.exists(file2):
     os.system("curl -O %s"%(url2))
 
+
+numGene_s = 0
+len_s = 0
+dict_s = {'A':0, 'C':0, 'T':0, 'G':0}
+
+numGene_m = 0
+len_m = 0
+dict_m = {'A':0, 'C':0, 'T':0, 'G':0}
+
+codon = {}
+# creating a dictionary for codon. 
+for first in {'A','T','C','G'}:
+    for second in {'A','T','C','G'}:
+        for third in {'A','T','C','G'}:
+            new_codon = first+second+third
+            new_dict = {new_codon:0}
+            codon.update(new_dict)
+codon_s = codon.copy()
+codon_m = codon.copy()
+
 with gzip.open(file1,"rt") as fh:
     seqs = aspairs(fh)
-
     for seq in seqs:
         seqname  = seq[0]
         seqstring= seq[1]
-        print(seqname, " first 10 bases are ", seqstring[0:10])
+        numGene_s += 1
+        len_s += len(seqstring)
+        for bp in seq[1]:
+            dict_s[bp] += 1
+        for n in range(0, len(seq[1]), 3):
+            codon_s[seq[1][n:n+3]] += 1
+
+GC_s = (dict_s['G'] + dict_s['C'])/sum(dict_s.values())
+
+with gzip.open(file2,"rt") as fh:
+    seqs = aspairs(fh)
+    for seq in seqs:
+        seqname  = seq[0]
+        seqstring= seq[1]
+        numGene_m += 1
+        len_m += len(seqstring)
+        for bp in seq[1]:
+            dict_m[bp] += 1
+        for n in range(0, len(seq[1]), 3):
+            codon_m[seq[1][n:n+3]] += 1
+
+GC_m = (dict_m['G'] + dict_m['C'])/sum(dict_m.values())
+
+print(f"Qn1: total number of genes in Salmonella is {numGene_s} while number of genes in Mycobacterium is {numGene_m}.")
+print(f"Qn2: total length of genes in Salmonella is {len_s}bps while total length of genes in Mycobacterium is {len_m}bps.")
+print(f"Qn3: GC content in Salmonella is {GC_s*100:.1f}% while GC content in Mycobacterium is {GC_m*100:.1f}%.")
+print(f"Qn4: Total number of codon in Salmonella is {len_s/3:.0f} while total number of codon in Mycobacterium is {len_m/3:.0f}.")
+print("Qn5:Codon frequency in two species:\nCodon\tSalmonella\tMycobacterium")
+for codon in codon:
+    print(codon, "\t", codon_s[codon], "\t", codon_m[codon])
