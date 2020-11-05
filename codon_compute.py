@@ -44,8 +44,7 @@ for first in {'A','T','C','G'}:
     for second in {'A','T','C','G'}:
         for third in {'A','T','C','G'}:
             new_codon = first+second+third
-            new_dict = {new_codon:0}
-            codon.update(new_dict)
+            codon[new_codon] = 0
 codon_s = codon.copy()
 codon_m = codon.copy()
 
