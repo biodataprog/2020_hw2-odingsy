@@ -32,10 +32,28 @@ if not os.path.exists(gff):
 if not os.path.exists(fasta):
     os.system("curl -O ftp://ftp.ensemblgenomes.org/pub/bacteria/release-45/fasta/bacteria_0_collection/escherichia_coli_str_k_12_substr_mg1655/dna/Escherichia_coli_str_k_12_substr_mg1655.ASM584v2.dna.chromosome.Chromosome.fa.gz")
     
+geneNum = 0 # set a variable: number of genes for Qn2
+geneLength = 0 # set a variable: gene length for Qn3
+chrLength = 0 # set a variable: chromosome length in Qn4
+
 with gzip.open(gff,"rt") as fh:
     # now add code to process this
     gff = csv.reader(fh,delimiter="\t")
     for row in gff:
         if row[0].startswith("#"):
             continue
-        print(row[3],row[6])
+        if row[2] == 'gene':
+            geneNum += 1
+            newLength = int(row[4]) - int(row[3])
+            geneLength += newLength
+    print(f"Qn2: number genes is {geneNum}.")
+    print(f"Qn3: total gene length is {geneLength}.")
+
+# Qn4 and Qn5
+with gzip.open(fasta, "rt") as f:
+    pairs = aspairs(f)
+    seqs = dict(pairs)
+for k,v in seqs.items():
+    chrLength += len(v)
+print(f"Qn4: total length of genome is {chrLength}.")
+print(f"Qn5: percentage of the genome which is coding {geneLength/chrLength*100:.1f}%(assuming no overlapping genes.)")
